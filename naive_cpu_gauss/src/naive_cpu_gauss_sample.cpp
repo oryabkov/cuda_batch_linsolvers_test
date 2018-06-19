@@ -4,7 +4,8 @@
 #include <cmath>
 #include "system_timer_event.h"
 
-#define real            float
+typedef SCALAR_TYPE     real;
+
 #define IM(m,j,k)       ((m)*(N)*(M)+(j)+(k)*(N))
 //#define IV(m,j)         ((m)*(N)+(j))
 
