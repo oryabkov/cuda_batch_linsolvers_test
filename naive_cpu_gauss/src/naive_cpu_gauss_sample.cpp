@@ -23,6 +23,15 @@ int main(int argc, char **args)
 
     real    *matrices = new real[BATCH_SZ*N*M],
             *matrices_0 = new real[BATCH_SZ*N*M];
+
+    if (sizeof(real) == sizeof(float))
+        printf("float variant is tested\n");
+    else if (sizeof(real) == sizeof(double))
+        printf("double variant is tested\n");
+    else {
+        printf("real is neither float nor double\n");
+        return 1;
+    }
     
     for (int s = 0;s < BATCH_SZ;++s) {
         for (int ii1 = 0;ii1 < N;++ii1) 
