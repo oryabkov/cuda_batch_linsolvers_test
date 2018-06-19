@@ -1,4 +1,4 @@
-##Description
+##Description##
 This repository contains small set of tests aimed to compare
 different approaches for solution of large number of small linear
 systems on GPU (so called batch mode). Each directory contains
@@ -16,7 +16,7 @@ any) specified directly through make variables. Also see README.md in
 directories to know more about presented approaches and how to build
 samples.
 
-##Current solutions
+##Current solutions##
 
 * naive_cpu_gauss - handwritten gauss-jordan elimination without any 
 complex optimizations (sort of baseline)
@@ -24,11 +24,11 @@ complex optimizations (sort of baseline)
 * shfl_gpu_gauss - handwritten gauss-jordan elimination for CUDA that
 makes use of CUDA register shuffle technique
 
-##Requirements
+##Requirements##
 
 * All \*_test targets require boost library.
 
-##Notes
+##Notes##
 Sorry, we are currently preparing other benchmark utils for public
 placement. If you are interested in benchmark results from paper, you
 may contact me at oleg.contacts@yandex.ru
