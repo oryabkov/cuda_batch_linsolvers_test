@@ -30,9 +30,12 @@ makes use of CUDA register shuffle technique
 
 # Notes
 Sorry, we are currently preparing other benchmark utils for public
-placement. If you are interested in benchmark results from paper, you
-may contact me at oleg.contacts@yandex.ru
+placement. Also \*_test programs are not availible for now.  If you 
+are interested in benchmark results from paper, you may contact me 
+at oleg.contacts@yandex.ru
 
+# Замечание
 Извините, мы сейчас подготавливаем остальные тесты для заливки на
-github. Если Вам интересны результаты тестов из статьи, Вы можете
-связаться со мной по адресу oleg.contacts@yandex.ru
+github. Также \*_test программы еще недоступны. Если Вам интересны 
+результаты тестов из статьи, Вы можете связаться со мной по адресу 
+oleg.contacts@yandex.ru
