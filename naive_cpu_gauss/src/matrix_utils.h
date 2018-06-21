@@ -25,6 +25,40 @@ struct batch_systems_data
 };
 
 template<class Real>
+bool read_matrix_vals_line(FILE *f_A, int &I, int &J, Real &val)
+{
+}
+
+template<>
+bool read_matrix_vals_line<float>(FILE *f_A, int &I, int &J, float &val)
+{
+    return (fscanf(f_A, "%d %d %f\n", &I, &J, &val) == 3);
+}
+
+template<>
+bool read_matrix_vals_line<double>(FILE *f_A, int &I, int &J, double &val)
+{
+    return (fscanf(f_A, "%d %d %lg\n", &I, &J, &val) == 3);    
+}
+
+template<class Real>
+bool read_vector_vals_line(FILE *f_b, Real &val)
+{
+}
+
+template<>
+bool read_vector_vals_line<float>(FILE *f_b, float &val)
+{
+    return (fscanf(f_b, "%f\n", &val) == 1);
+}
+
+template<>
+bool read_vector_vals_line<double>(FILE *f_b, double &val)
+{
+    return (fscanf(f_b, "%lg\n", &val) == 1);
+}
+
+template<class Real>
 void read_matrices(const std::string &input_path_A, const std::string &input_path_b,
                    batch_systems_data<Real> &batch_systems)
 {
@@ -47,12 +81,13 @@ void read_matrices(const std::string &input_path_A, const std::string &input_pat
 
     std::cout << "Matrices num:" << batch_systems.matrices_num << std::endl;
 
-    /* Allocating memory for matrices data structure */
+    // Allocating memory for matrices data structure 
     batch_systems.I = (int **) malloc(batch_systems.matrices_num * sizeof(int **));
     batch_systems.J = (int **) malloc(batch_systems.matrices_num * sizeof(int **));
     batch_systems.A_vals = (Real **) malloc(batch_systems.matrices_num * sizeof(Real **));
     /* set nz num in matrices structure only once */
 
+    // Allocating memory for rhs data structure 
     batch_systems.b_vals = (Real **) malloc(batch_systems.matrices_num * sizeof(Real **));
 
     for (ii = 0;ii < batch_systems.matrices_num;++ii) {
@@ -72,12 +107,12 @@ void read_matrices(const std::string &input_path_A, const std::string &input_pat
         batch_systems.nz_num = nz;
         batch_systems.matrices_shape = std::max(M,N);
 
-        // reserve memory for matrices 
+        // reserve memory for cuurent matrix 
         I = (int *) malloc(nz * sizeof(int));
         J = (int *) malloc(nz * sizeof(int));
         val = (Real *) malloc(nz * sizeof(Real));
 
-        /* and for b values */
+        // reserve memory for current b values
         b_vals = (Real *) malloc(std::max(M,N) * sizeof(Real));
 
 
@@ -85,32 +120,17 @@ void read_matrices(const std::string &input_path_A, const std::string &input_pat
         /*   specifier as in "%lg", "%lf", "%le", otherwise errors will occur */
         /*  (ANSI C X3.159-1989, Sec. 4.9.6.2, p. 136 lines 13-15)            */
 
-        for (i=0; i<nz; i++)
-        {
-            #ifdef double_real
-            if (fscanf(f_A, "%d %d %lg\n", &I[i], &J[i], &val[i]) != 3) 
+        for (i=0; i<nz; i++) {
+            if (!read_matrix_vals_line<Real>(f_A, I[i], J[i], val[i]))
                 throw std::runtime_error("Error while reading values from matrix A file " + input_path_A);
-            #endif
-            #ifdef float_real
-            if (fscanf(f_A, "%d %d %f\n", &I[i], &J[i], &val[i]) != 3) 
-                throw std::runtime_error("Error while reading values from matrix A file " + input_path_A);
-            #endif
             // adjust from 1-based to 0-based 
             I[i]--;  
             J[i]--;
         }
 
-        for (i=0; i<std::max(M,N); i++)
-        {
-            #ifdef double_real
-            if (fscanf(f_b, "%lg\n", &b_vals[i]) != 1)
+        for (i=0; i<std::max(M,N); i++) {
+            if (!read_vector_vals_line(f_b, b_vals[i]))
                 throw std::runtime_error("Error while reading values from vector b file " + input_path_b);
-            #endif
-            #ifdef float_real
-            if (fscanf(f_b, "%f\n", &b_vals[i]) != 1)
-                throw std::runtime_error("Error while reading values from vector b file " + input_path_b);
-            #endif
-
         }
 
         // remove many I,J matrices, leave only one
@@ -118,8 +138,7 @@ void read_matrices(const std::string &input_path_A, const std::string &input_pat
         batch_systems.J[ii] = (int*) malloc(sizeof(int*)*batch_systems.nz_num);
         batch_systems.A_vals[ii] = (Real *) malloc(sizeof(Real *)*batch_systems.nz_num);
 
-        for(iii=0;iii<batch_systems.nz_num;iii++)
-        {
+        for(iii=0;iii<batch_systems.nz_num;iii++) {
             batch_systems.I[ii][iii] = I[iii];
             batch_systems.J[ii][iii] = J[iii];
             batch_systems.A_vals[ii][iii] = val[iii];
@@ -127,10 +146,12 @@ void read_matrices(const std::string &input_path_A, const std::string &input_pat
 
         batch_systems.b_vals[ii] = (Real *) malloc(sizeof(Real *)*batch_systems.matrices_shape);
 
-        for(iii=0;iii<batch_systems.matrices_shape;iii++)
-        {
+        for(iii=0;iii<batch_systems.matrices_shape;iii++) {
             batch_systems.b_vals[ii][iii] = b_vals[iii];
         }
+
+        free(I); free(J); free(val);
+        free(b_vals);
     }
     if (f_A !=stdin) fclose(f_A);
     if (f_b !=stdin) fclose(f_b);
