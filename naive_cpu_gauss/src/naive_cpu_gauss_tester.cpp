@@ -1,6 +1,5 @@
 
 #include <cstdlib>
-#include <cstdio>
 #include <cmath>
 #include <iostream>
 #include <string>
@@ -12,6 +11,7 @@
 #include "matrix_utils.h"
 #include "convert_to_dense.h"
 #include "copy_to_dense.h"
+#include "write_vector.h"
 #include "naive_cpu_gauss.h"
 
 namespace po = boost::program_options;
@@ -22,7 +22,7 @@ int main(int argc, char **args)
 {
     std::string         input_path_A, input_path_b, output_path_x;
     int                 repeat_times;
-    int                 device_number;
+    //int                 device_number;
 
     try {
         std::cout << "Use -h option for help" << std::endl;
@@ -33,7 +33,7 @@ int main(int argc, char **args)
             ("INPUT_A,a", po::value<std::string>()->default_value("big_A.mm"), "Input .mm file with A matrices")
             ("INPUT_B,b", po::value<std::string>()->default_value("b_vector.csv"), "Input .csv file with b vector")
             ("output,o", po::value<std::string>()->default_value("x_vector.csv"), "Output solution file")
-            ("device_number,d", po::value<int>()->default_value(0), "Device number")
+            //("device_number,d", po::value<int>()->default_value(0), "Device number")
             ("repeat_times,r", po::value<int>()->default_value(10), "Number ot test repeats");
 
         po::positional_options_description desc_pos;
@@ -52,7 +52,7 @@ int main(int argc, char **args)
         input_path_b = vm["INPUT_B"].as<std::string>();
         output_path_x = vm["output"].as<std::string>();
 
-        device_number = vm["device_number"].as<int>();
+        //device_number = vm["device_number"].as<int>();
         repeat_times = vm["repeat_times"].as<int>();
     } catch(std::exception& ex) {
         std::cerr << ex.what() << std::endl;
@@ -63,7 +63,7 @@ int main(int argc, char **args)
     batch_systems_data<real> batch_systems;
 
     try {
-        read_matrices(input_path_A, input_path_b, output_path_x, batch_systems);
+        read_matrices(input_path_A, input_path_b, batch_systems);
     } catch(std::exception& ex) {
         std::cerr << "Error while reading matrices and rhs: " << ex.what() << std::endl;
         return 1;
@@ -105,7 +105,8 @@ int main(int argc, char **args)
     std::cout << "Repeat_times = " << repeat_times << std::endl;
     std::cout << "Time per iteration = " << end.elapsed_time(start)/1000./repeat_times << " s" << std::endl;
 
-    /*real    norm_C = 0.f;
+    // we explititly use here that number of rhs's is 1
+    real    norm_C = 0.f;
     for (int s = 0;s < batch_sz;++s) {
         for (int ii1 = 0;ii1 < N;++ii1) {
             real    res = 0.f;
@@ -117,7 +118,14 @@ int main(int argc, char **args)
             norm_C = fmax(fabs(res - matrices_0[IM(s,ii1,N)]), norm_C);
         }
     }
-    std::cout << "Norm_C = " << norm_C << std::endl;*/
+    std::cout << "Norm_C of solution residual = " << norm_C << std::endl;
+
+    try {
+        write_vector(batch_sz, N, M, matrices, output_path_x);
+    } catch(std::exception& ex) {
+        std::cerr << "Error while writing result: " << ex.what() << std::endl;
+        return 1;
+    }
 
     delete []matrices;
     delete []matrices_0;

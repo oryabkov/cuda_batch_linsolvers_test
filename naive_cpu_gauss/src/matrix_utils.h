@@ -25,7 +25,7 @@ struct batch_systems_data
 };
 
 template<class Real>
-void read_matrices(const std::string &input_path_A, const std::string &input_path_b, const std::string &output_path_x,
+void read_matrices(const std::string &input_path_A, const std::string &input_path_b,
                    batch_systems_data<Real> &batch_systems)
 {
     FILE *f_A,*f_b;
@@ -36,8 +36,7 @@ void read_matrices(const std::string &input_path_A, const std::string &input_pat
     Real *val,*b_vals;
 
     std::cout << "Reading input files:\n   matrix A: " << input_path_A << std::endl <<
-                                       "   vector b: " << input_path_b << std::endl <<
-                                       "   solution: " << output_path_x << std::endl;
+                                       "   vector b: " << input_path_b << std::endl;
 
     if ((f_A = fopen(input_path_A.c_str(), "r")) == NULL)
         throw std::runtime_error("Can't open input matrix A file " + input_path_A);
