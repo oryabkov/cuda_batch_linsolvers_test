@@ -110,6 +110,9 @@ int main(int argc, char **args)
     std::cout << "Repeat times:           " << repeat_times << std::endl;
     std::cout << "Time per iteration:     " << end.elapsed_time(start)/1000./repeat_times << " s" << std::endl;
 
+    std::cout << std::endl << "T1:" << repeat_times << "\t" << batch_sz << "\t" 
+              << end.elapsed_time(start)/1000. << std::endl << std::endl;
+
     // we explititly use here that number of rhs's is 1
     std::cout << "Calculating residual..." << std::endl;
     real    norm_C = 0.f;
