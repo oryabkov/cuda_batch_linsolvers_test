@@ -71,7 +71,7 @@ __global__ void ker_gauss_elim(int batch_sz, T *m_in, T *m_out)
 int main(int argc, char **args)
 {
     if (argc < 4) {
-        std::cout << "USAGE: " << std::string(args[0]) << " dev_num batch_size iters_num" << std::endl;
+        std::cout << "USAGE: " << std::string(args[0]) << " dev_num batch_size repeat_times" << std::endl;
         return 0;
     }
 
@@ -80,15 +80,26 @@ int main(int argc, char **args)
                   << "Note that we apply GJ to extened matrix, so M-N is actually is a number if RHSs" << std::endl;
         return 1;
     }
+    if (M > 32) {
+        std::cout << "Number of columns (M) more than 32 is not supported by this solver" << std::endl;
+        return 1;
+    }
 
     int batch_size = atoi(args[2]),
         dev_num = atoi(args[1]),
-        iters_num = atoi(args[3]);
+        repeat_times = atoi(args[3]);
 
     batch_size = ((batch_size/256)+1)*256;
     std::cout << "Using rounded batch_size: " << batch_size << std::endl;
 
     std::cout << "Initializating device number " << dev_num << std::endl;
+    cudaDeviceProp deviceProp;
+    cudaGetDeviceProperties(&deviceProp, dev_num);
+    std::cout << "Device compute capability: " << deviceProp.major << "." << deviceProp.minor << std::endl;
+    if (deviceProp.major*100 + deviceProp.minor < 305) {
+        std::cout << "CC less then 3.5 is not supported by this solver" << std::endl;
+        return 1;
+    }
     cudaSetDevice(dev_num);
     std::cout << "done" << std::endl;
 
@@ -102,7 +113,7 @@ int main(int argc, char **args)
     CUDA_SAFE_CALL( cudaMalloc((void**)&matrices_dev_0, sizeof(real)*batch_size*N*M) );
     std::cout << "done" << std::endl;
     
-    std::cout << "Preparing matrices on host..." << std::endl;
+    std::cout << "Preparing random matrices on host..." << std::endl;
     for (int s = 0;s < batch_size;++s) {
         for (int ii1 = 0;ii1 < N;++ii1) 
         for (int ii2 = 0;ii2 < M;++ii2) {
@@ -122,9 +133,7 @@ int main(int argc, char **args)
     std::cout << "Calculation..." << std::endl;
     start.record();
 
-    
-    //int iters_num = 10;
-    for (int iter = 0;iter < iters_num;++iter) {
+    for (int iter = 0;iter < repeat_times;++iter) {
         ker_gauss_elim<real,N,M-N><<<M*batch_size/256,256>>>(batch_size, matrices_dev_0, matrices_dev);
     }
 
@@ -132,8 +141,8 @@ int main(int argc, char **args)
     std::cout << "done" << std::endl;
 
     std::cout << "Elapsed time:           " << end.elapsed_time(start)/1000. << " s" << std::endl;
-    std::cout << "Repeat times:           " << iters_num << std::endl;
-    std::cout << "Time per iteration:     " << end.elapsed_time(start)/1000./iters_num << " s" << std::endl;
+    std::cout << "Repeat times:           " << repeat_times << std::endl;
+    std::cout << "Time per iteration:     " << end.elapsed_time(start)/1000./repeat_times << " s" << std::endl;
 
     std::cout << "Copying results back to host..." << std::endl;
 
