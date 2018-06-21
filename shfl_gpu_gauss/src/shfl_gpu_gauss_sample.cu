@@ -85,6 +85,15 @@ int main(int argc, char **args)
         return 1;
     }
 
+    if (sizeof(real) == sizeof(float))
+        std::cout << "Float variant is tested" << std::endl;
+    else if (sizeof(real) == sizeof(double))
+        std::cout << "Double variant is tested" << std::endl;
+    else {
+        std::cout << "Real is neither float nor double" << std::endl;
+        return 1;
+    }
+
     int batch_size = atoi(args[2]),
         dev_num = atoi(args[1]),
         repeat_times = atoi(args[3]);
@@ -148,9 +157,8 @@ int main(int argc, char **args)
 
     CUDA_SAFE_CALL( cudaMemcpy(matrices, matrices_dev, sizeof(real)*batch_size*N*M, cudaMemcpyDeviceToHost) );
 
-    std::cout << "Calculating residual on cpu..." << std::endl;
-
     if (M != N) {
+        std::cout << "Calculating residual on cpu..." << std::endl;
         real    norm_C = 0.f;
         for (int s = 0;s < batch_size;++s) {
             for (int rhs_i = N;rhs_i < M;++rhs_i)
@@ -163,7 +171,9 @@ int main(int argc, char **args)
             }
         }
         std::cout << "done" << std::endl;
-        std::cout << "Norm_C:                 " << norm_C << std::endl;
+        std::cout << "Residual norm_C:        " << norm_C << std::endl;
+    } else {
+        std::cout << "Note, that you are solving systems without RHSs (N==M)" << std::endl;
     }
 
     std::cout << "Free memory..." << std::endl;

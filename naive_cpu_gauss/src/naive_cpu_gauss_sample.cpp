@@ -12,23 +12,20 @@ typedef SCALAR_TYPE     real;
 int main(int argc, char **args)
 {
     if (argc < 5) {
-        std::cout << "USAGE: " << std::string(args[0]) << " batch_size N M iters_num" << std::endl;
+        std::cout << "USAGE: " << std::string(args[0]) << " batch_size N M repeat_times" << std::endl;
         return 0;
     }
 
     int batch_sz = atoi(args[1]),
         N = atoi(args[2]),
         M = atoi(args[3]),
-        iters_num = atoi(args[4]);
+        repeat_times = atoi(args[4]);
 
     if (M < N) {
         std::cout << "Number of columns (M) must be equal or greater than number of rows (N)" << std::endl
                   << "Note that we apply GJ to extened matrix, so M-N is actually is a number if RHSs" << std::endl;
         return 1;
     }
-
-    real    *matrices = new real[batch_sz*N*M],
-            *matrices_0 = new real[batch_sz*N*M];
 
     if (sizeof(real) == sizeof(float))
         std::cout << "Float variant is tested" << std::endl;
@@ -38,7 +35,13 @@ int main(int argc, char **args)
         std::cout << "Real is neither float nor double" << std::endl;
         return 1;
     }
+
+    std::cout << "Allocating memory..." << std::endl;
+    real    *matrices = new real[batch_sz*N*M],
+            *matrices_0 = new real[batch_sz*N*M];
+    std::cout << "done" << std::endl;
     
+    std::cout << "Preparing random matrices..." << std::endl;
     for (int s = 0;s < batch_sz;++s) {
         for (int ii1 = 0;ii1 < N;++ii1) 
         for (int ii2 = 0;ii2 < M;++ii2) {
@@ -46,10 +49,12 @@ int main(int argc, char **args)
             matrices_0[IM(s,ii1,ii2)] = matrices[IM(s,ii1,ii2)];
         }
     }
+    std::cout << "done" << std::endl;
 
     system_timer_event    start, end;
     start.init(); end.init();
 
+    std::cout << "Calculation..." << std::endl;
     start.record();
 
     for (int iter = 0;iter < iters_num;++iter)
@@ -83,12 +88,14 @@ int main(int argc, char **args)
     }
 
     end.record();
+    std::cout << "done" << std::endl;
 
-    std::cout << "Elapsed time = " << end.elapsed_time(start)/1000. << " s\n";
-    std::cout << "Iters_num = " << iters_num << std::endl;
-    std::cout << "Time per iteration = " << end.elapsed_time(start)/1000./iters_num << " s" << std::endl;
+    std::cout << "Elapsed time:           " << end.elapsed_time(start)/1000. << " s\n";
+    std::cout << "Repeat times:           " << repeat_times << std::endl;
+    std::cout << "Time per iteration:     " << end.elapsed_time(start)/1000./repeat_times << " s" << std::endl;
 
     if (M != N) {
+        std::cout << "Calculating residual..." << std::endl;
         real    norm_C = 0.f;
         for (int s = 0;s < batch_sz;++s) {
             for (int rhs_i = N;rhs_i < M;++rhs_i)
@@ -100,7 +107,8 @@ int main(int argc, char **args)
                 norm_C = fmax(fabs(res - matrices_0[IM(s,ii1,rhs_i)]), norm_C);
             }
         }
-        std::cout << "Norm_C = " << norm_C << std::endl;
+        std::cout << "done" << std::endl;
+        std::cout << "Residual norm_C:        " << norm_C << std::endl;
     } else {
         std::cout << "Note, that you are solving systems without RHSs (N==M)" << std::endl;
     }

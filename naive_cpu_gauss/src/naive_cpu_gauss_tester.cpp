@@ -59,11 +59,21 @@ int main(int argc, char **args)
         return 1;
     }
 
+    if (sizeof(real) == sizeof(float))
+        std::cout << "Float variant is tested" << std::endl;
+    else if (sizeof(real) == sizeof(double))
+        std::cout << "Double variant is tested" << std::endl;
+    else {
+        std::cout << "Real is neither float nor double" << std::endl;
+        return 1;
+    }
+
     // struct for matrices
     batch_systems_data<real> batch_systems;
 
     try {
         read_matrices(input_path_A, input_path_b, batch_systems);
+        std::cout << "done" << std::endl;
     } catch(std::exception& ex) {
         std::cerr << "Error while reading matrices and rhs: " << ex.what() << std::endl;
         return 1;
@@ -74,24 +84,18 @@ int main(int argc, char **args)
 
     print_matrices_stats(batch_systems);
 
-    // convert matrices to dense format; note that extended matrix is used so rhs is appended
+    std::cout << "Converting matrices to dense format..." << std::endl;
+    // note that extended matrix is used so rhs is appended
     int     batch_sz, N, M;
     real    *matrices, *matrices_0;
     convert_to_dense(batch_systems, batch_sz, N, M, matrices);
     copy_to_dense(batch_sz, N, M, matrices, matrices_0);
-
-    if (sizeof(real) == sizeof(float))
-        std::cout << "Float variant is tested" << std::endl;
-    else if (sizeof(real) == sizeof(double))
-        std::cout << "Double variant is tested" << std::endl;
-    else {
-        std::cout << "Real is neither float nor double" << std::endl;
-        return 1;
-    }
+    std::cout << "done" << std::endl;
     
     system_timer_event    start, end;
     start.init(); end.init();
 
+    std::cout << "Calculation..." << std::endl;
     start.record();
 
     // gives right answer with several repeat_times because of ident matrix inversion
@@ -100,12 +104,14 @@ int main(int argc, char **args)
     }
 
     end.record();
+    std::cout << "done" << std::endl;
 
-    std::cout << "Elapsed time = " << end.elapsed_time(start)/1000. << " s" << std::endl;
-    std::cout << "Repeat_times = " << repeat_times << std::endl;
-    std::cout << "Time per iteration = " << end.elapsed_time(start)/1000./repeat_times << " s" << std::endl;
+    std::cout << "Elapsed time:           " << end.elapsed_time(start)/1000. << " s" << std::endl;
+    std::cout << "Repeat times:           " << repeat_times << std::endl;
+    std::cout << "Time per iteration:     " << end.elapsed_time(start)/1000./repeat_times << " s" << std::endl;
 
     // we explititly use here that number of rhs's is 1
+    std::cout << "Calculating residual..." << std::endl;
     real    norm_C = 0.f;
     for (int s = 0;s < batch_sz;++s) {
         for (int ii1 = 0;ii1 < N;++ii1) {
@@ -118,7 +124,8 @@ int main(int argc, char **args)
             norm_C = fmax(fabs(res - matrices_0[IM(s,ii1,N)]), norm_C);
         }
     }
-    std::cout << "Norm_C of solution residual = " << norm_C << std::endl;
+    std::cout << "done" << std::endl;
+    std::cout << "Residual norm_C:        " << norm_C << std::endl;
 
     try {
         write_vector(batch_sz, N, M, matrices, output_path_x);
