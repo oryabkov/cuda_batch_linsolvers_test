@@ -41,7 +41,7 @@ void shfl_gpu_gauss(int batch_sz, int N, int M, Real *m_in, Real *m_out)
         case 29: ker_shfl_gpu_gauss<Real,29, 3><<<M*batch_sz/256,256>>>(batch_sz, m_in, m_out); break;
         case 30: ker_shfl_gpu_gauss<Real,30, 2><<<M*batch_sz/256,256>>>(batch_sz, m_in, m_out); break;
         case 31: ker_shfl_gpu_gauss<Real,31, 1><<<M*batch_sz/256,256>>>(batch_sz, m_in, m_out); break;
-        default: throw std::runtime_error("shfl_gpu_gauss: N>31 case is not supported yet"); break;
+        default: throw std::runtime_error("shfl_gpu_gauss: N>31 case is not supported yet"); 
     }
 }
 

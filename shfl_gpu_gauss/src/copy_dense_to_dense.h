@@ -5,7 +5,7 @@
 #include "matrix_utils.h"
 
 template<class Real>
-int copy_dense_to_dense(int batch_sz, int N, int M, Real *matrices_src, Real *&matrices_dst)
+void copy_dense_to_dense(int batch_sz, int N, int M, Real *matrices_src, Real *&matrices_dst)
 {
     matrices_dst = new Real[batch_sz*N*M];
 

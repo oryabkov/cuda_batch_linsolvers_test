@@ -5,8 +5,8 @@
 #include "matrix_utils.h"
 
 template<class Real>
-int copy_sparse_to_dense(batch_systems_data<Real> batch_systems, 
-                         int batch_sz, int N, int M, Real *matrices)
+void copy_sparse_to_dense(batch_systems_data<Real> batch_systems, 
+                          int batch_sz, int N, int M, Real *matrices)
 {
     for (int batch = 0;batch < batch_sz;batch++) {
         for (int row = 0;row < N;row++) {

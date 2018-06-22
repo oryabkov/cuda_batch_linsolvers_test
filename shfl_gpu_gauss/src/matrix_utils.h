@@ -65,7 +65,7 @@ void read_matrices(const std::string &input_path_A, const std::string &input_pat
 {
     FILE *f_A,*f_b;
     MM_typecode matcode;
-    int ret_code;
+    //int ret_code;
     int M, N, nz;
     int i, *I, *J,ii,iii;
     Real *val,*b_vals;
@@ -102,7 +102,7 @@ void read_matrices(const std::string &input_path_A, const std::string &input_pat
             throw std::runtime_error("No support for Market Market type: [" + std::string(mm_typecode_to_str(matcode)) + "]");
 
         // read the size of sparse matrix .... 
-        if ((ret_code = mm_read_mtx_crd_size(f_A, &M, &N, &nz)) !=0)
+        if ((mm_read_mtx_crd_size(f_A, &M, &N, &nz)) !=0)
             throw std::runtime_error("Error while reading matrix sizes");
 
         batch_systems.nz_num = nz;

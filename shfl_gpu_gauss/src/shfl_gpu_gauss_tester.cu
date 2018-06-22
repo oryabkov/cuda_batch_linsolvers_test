@@ -77,9 +77,9 @@ int main(int argc, char **args)
     batch_systems_data<real> batch_systems;
 
     try {
-        add here: batch_sz = ((batch_sz/256)+1)*256;
+        //add here: batch_sz = ((batch_sz/256)+1)*256;
         read_matrices(input_path_A, input_path_b, batch_systems);
-        std::cout << "Using rounded batch_size: " << batch_sz << std::endl;
+        std::cout << "Using rounded batch_size: " << batch_systems.matrices_num << std::endl;
         std::cout << "done" << std::endl;
     } catch(std::exception& ex) {
         std::cerr << "Error while reading matrices and rhs: " << ex.what() << std::endl;
@@ -135,7 +135,7 @@ int main(int argc, char **args)
     start.record();
 
     for (int iter = 0;iter < repeat_times;++iter) {
-        shfl_gpu_gauss(batch_sz, N, M, matrices_dev_0, matrices_dev)
+        shfl_gpu_gauss(batch_sz, N, M, matrices_dev_0, matrices_dev);
     }
 
     end.record();
