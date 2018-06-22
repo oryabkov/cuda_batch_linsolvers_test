@@ -5,6 +5,7 @@
 
 #include <sys/time.h>
 #include <unistd.h>
+#include <stdexcept>
 #include "timer_event.h"
 
 struct system_timer_event : public timer_event

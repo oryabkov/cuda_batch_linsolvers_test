@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <string>
+#include <stdexcept>
 //#include <boost/program_options.hpp>
 extern "C" {
 #include "mmio.h"

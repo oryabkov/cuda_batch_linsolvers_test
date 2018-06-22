@@ -3,6 +3,7 @@
 #include <cmath>
 #include <iostream>
 #include <string>
+#include <stdexcept>
 #include <boost/program_options.hpp>
 #include <boost/algorithm/string.hpp>
 
