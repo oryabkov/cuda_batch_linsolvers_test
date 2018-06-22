@@ -26,9 +26,9 @@ ${BUILD_DIR}/naive_cpu_gauss_double_sample: src/naive_cpu_gauss_sample.cpp $(HEA
 
 ${BUILD_DIR}/mmio.o: src/mmio.c src/mmio.h
 	$(CC) $(CFLAGS) -c src/mmio.c -o ${BUILD_DIR}/mmio.o
-${BUILD_DIR}/naive_cpu_gauss_float_tester: src/naive_cpu_gauss_tester.cpp ${BUILD_DIR}/mmio.o $(HEADER_FILES) src/mmio.h src/matrix_utils.h
+${BUILD_DIR}/naive_cpu_gauss_float_tester: src/naive_cpu_gauss_tester.cpp $(HEADER_FILES) ${BUILD_DIR}/mmio.o src/mmio.h src/matrix_utils.h
 	$(CXX) $(CXXFLAGS) -DSCALAR_TYPE=float $(LDFLAGS) $(INCLUDE_DIRS_FLAGS) $(LIBS_DIRS_FLAGS) src/naive_cpu_gauss_tester.cpp ${BUILD_DIR}/mmio.o -o $@ -lboost_program_options
-${BUILD_DIR}/naive_cpu_gauss_double_tester: src/naive_cpu_gauss_tester.cpp $(HEADER_FILES) ${BUILD_DIR}/mmio.o src/matrix_utils.h
+${BUILD_DIR}/naive_cpu_gauss_double_tester: src/naive_cpu_gauss_tester.cpp $(HEADER_FILES) ${BUILD_DIR}/mmio.o src/mmio.h src/matrix_utils.h
 	$(CXX) $(CXXFLAGS) -DSCALAR_TYPE=double $(LDFLAGS) $(INCLUDE_DIRS_FLAGS) $(LIBS_DIRS_FLAGS) src/naive_cpu_gauss_tester.cpp ${BUILD_DIR}/mmio.o -o $@ -lboost_program_options
 
 clean:
