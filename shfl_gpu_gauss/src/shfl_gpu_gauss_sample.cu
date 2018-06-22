@@ -50,12 +50,12 @@ int main(int argc, char **args)
         return 1;
     }
 
-    int batch_size = atoi(args[2]),
+    int batch_sz = atoi(args[2]),
         dev_num = atoi(args[1]),
         repeat_times = atoi(args[3]);
 
-    batch_size = ((batch_size/256)+1)*256;
-    std::cout << "Using rounded batch_size: " << batch_size << std::endl;
+    batch_sz = ((batch_sz/256)+1)*256;
+    std::cout << "Using rounded batch_size: " << batch_sz << std::endl;
 
     std::cout << "Initializating device number " << dev_num << std::endl;
     cudaDeviceProp deviceProp;
@@ -72,14 +72,14 @@ int main(int argc, char **args)
             *matrices_dev, *matrices_dev_0;
 
     std::cout << "Allocating memory..." << std::endl;
-    CUDA_SAFE_CALL( cudaMallocHost((void**)&matrices, sizeof(real)*batch_size*N*M) );
-    CUDA_SAFE_CALL( cudaMallocHost((void**)&matrices_0, sizeof(real)*batch_size*N*M) );
-    CUDA_SAFE_CALL( cudaMalloc((void**)&matrices_dev, sizeof(real)*batch_size*N*M) );
-    CUDA_SAFE_CALL( cudaMalloc((void**)&matrices_dev_0, sizeof(real)*batch_size*N*M) );
+    CUDA_SAFE_CALL( cudaMallocHost((void**)&matrices, sizeof(real)*batch_sz*N*M) );
+    CUDA_SAFE_CALL( cudaMallocHost((void**)&matrices_0, sizeof(real)*batch_sz*N*M) );
+    CUDA_SAFE_CALL( cudaMalloc((void**)&matrices_dev, sizeof(real)*batch_sz*N*M) );
+    CUDA_SAFE_CALL( cudaMalloc((void**)&matrices_dev_0, sizeof(real)*batch_sz*N*M) );
     std::cout << "done" << std::endl;
     
     std::cout << "Preparing random matrices on host..." << std::endl;
-    for (int s = 0;s < batch_size;++s) {
+    for (int s = 0;s < batch_sz;++s) {
         for (int ii1 = 0;ii1 < N;++ii1) 
         for (int ii2 = 0;ii2 < M;++ii2) {
             matrices[IM(s,ii1,ii2)] = (ii1 == ii2?2.f:0.f) + real(rand()%100000)/real(100000.f);
@@ -89,7 +89,7 @@ int main(int argc, char **args)
     std::cout << "done" << std::endl;
 
     std::cout << "Copying data to gpu..." << std::endl;
-    CUDA_SAFE_CALL( cudaMemcpy(matrices_dev_0, matrices, sizeof(real)*batch_size*N*M, cudaMemcpyHostToDevice) );
+    CUDA_SAFE_CALL( cudaMemcpy(matrices_dev_0, matrices, sizeof(real)*batch_sz*N*M, cudaMemcpyHostToDevice) );
     std::cout << "done" << std::endl;
 
     cuda_timer_event    start, end;
@@ -99,7 +99,7 @@ int main(int argc, char **args)
     start.record();
 
     for (int iter = 0;iter < repeat_times;++iter) {
-        ker_shfl_gpu_gauss<real,N,M-N><<<M*batch_size/256,256>>>(batch_size, matrices_dev_0, matrices_dev);
+        ker_shfl_gpu_gauss<real,N,M-N><<<M*batch_sz/256,256>>>(batch_sz, matrices_dev_0, matrices_dev);
     }
 
     end.record();
@@ -111,12 +111,12 @@ int main(int argc, char **args)
 
     std::cout << "Copying results back to host..." << std::endl;
 
-    CUDA_SAFE_CALL( cudaMemcpy(matrices, matrices_dev, sizeof(real)*batch_size*N*M, cudaMemcpyDeviceToHost) );
+    CUDA_SAFE_CALL( cudaMemcpy(matrices, matrices_dev, sizeof(real)*batch_sz*N*M, cudaMemcpyDeviceToHost) );
 
     if (M != N) {
         std::cout << "Calculating residual on cpu..." << std::endl;
         real    norm_C = 0.f;
-        for (int s = 0;s < batch_size;++s) {
+        for (int s = 0;s < batch_sz;++s) {
             for (int rhs_i = N;rhs_i < M;++rhs_i)
             for (int ii1 = 0;ii1 < N;++ii1) {
                 real    res = 0.f;
