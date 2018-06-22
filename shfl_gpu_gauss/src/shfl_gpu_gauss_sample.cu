@@ -4,12 +4,14 @@
 #include <cmath>
 #include <iostream>
 #include <string>
+#include <stdexcept>
 #include <cuda.h>
 #include <cuda_runtime.h>
 
 #include "cuda_timer_event.h"
 #include "cuda_safe_call.h"
 #include "index_matrix.h"
+#include "ker_shfl_gpu_gauss.cuh"
 
 typedef SCALAR_TYPE     real;
 
@@ -21,52 +23,6 @@ typedef SCALAR_TYPE     real;
 #endif
 #define N MATRIX_SZ
 #define M MATRIX_SZ_EXT
-
-template<class T, int Sz, int RhsN>
-__device__ T &access_batch_matrix(int batch_sz, T *m, int i, int row)
-{
-    return m[batch_sz*(Sz + RhsN)*row + i];
-}
-
-//ASSERT(Sz+RhsN <= 32)
-//ASSERT(Sz+RhsN is power of 2)
-template<class T, int Sz, int RhsN>
-__global__ void ker_gauss_elim(int batch_sz, T *m_in, T *m_out)
-{
-    int i = blockIdx.x * blockDim.x + threadIdx.x;
-    if (!(i < batch_sz*(Sz + RhsN))) return;
-
-    T       c[Sz];          //matrix column
-    #pragma unroll
-    for (int row = 0;row < Sz;++row) c[row] = access_batch_matrix<T,Sz,RhsN>(batch_sz, m_in, i, row);
-
-    //forward elimination
-    #pragma unroll
-    for (int row = 0;row < Sz;++row) {
-        T lead = __shfl(c[row], row, Sz + RhsN);
-        c[row] /= lead;
-        #pragma unroll
-        for (int row1 = 0;row1 < Sz;++row1) {
-            if (row1 <= row) continue;
-            T mul = __shfl(c[row1], row, Sz + RhsN);
-            c[row1] -= c[row]*mul;
-        }
-    }
-
-    //backward elimination
-    #pragma unroll
-    for (int row = Sz-1;row >= 0;--row) {
-        #pragma unroll
-        for (int row1 = Sz-1;row1 >= 0;--row1) {
-            if (row1 >= row) continue;
-            T mul = __shfl(c[row1], row, Sz + RhsN);
-            c[row1] -= c[row]*mul;
-        }
-    }
-
-    #pragma unroll
-    for (int row = 0;row < Sz;++row) access_batch_matrix<T,Sz,RhsN>(batch_sz, m_out, i, row) = c[row];
-}
 
 int main(int argc, char **args)
 {
@@ -143,7 +99,7 @@ int main(int argc, char **args)
     start.record();
 
     for (int iter = 0;iter < repeat_times;++iter) {
-        ker_gauss_elim<real,N,M-N><<<M*batch_size/256,256>>>(batch_size, matrices_dev_0, matrices_dev);
+        ker_shfl_gpu_gauss<real,N,M-N><<<M*batch_size/256,256>>>(batch_size, matrices_dev_0, matrices_dev);
     }
 
     end.record();
