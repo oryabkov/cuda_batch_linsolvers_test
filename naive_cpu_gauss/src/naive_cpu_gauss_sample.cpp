@@ -57,7 +57,7 @@ int main(int argc, char **args)
     std::cout << "Calculation..." << std::endl;
     start.record();
 
-    for (int iter = 0;iter < iters_num;++iter)
+    for (int iter = 0;iter < repeat_times;++iter)
     for (int s = 0;s < batch_sz;++s) {
         //forward step
         for (int ii1 = 0;ii1 < N;++ii1) {

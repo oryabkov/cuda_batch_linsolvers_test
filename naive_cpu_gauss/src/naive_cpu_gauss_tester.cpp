@@ -10,8 +10,9 @@
 #include "system_timer_event.h"
 #include "index_matrix.h"
 #include "matrix_utils.h"
-#include "convert_to_dense.h"
-#include "copy_to_dense.h"
+#include "init_dense_sz.h"
+#include "copy_dense_to_dense.h"
+#include "copy_sparse_to_dense.h"
 #include "write_vector.h"
 #include "naive_cpu_gauss.h"
 
@@ -89,8 +90,11 @@ int main(int argc, char **args)
     // note that extended matrix is used so rhs is appended
     int     batch_sz, N, M;
     real    *matrices, *matrices_0;
-    convert_to_dense(batch_systems, batch_sz, N, M, matrices);
-    copy_to_dense(batch_sz, N, M, matrices, matrices_0);
+    init_dense_sz(batch_systems, batch_sz, N, M);
+    matrices = new real[batch_sz*N*M];
+    matrices_0 = new real[batch_sz*N*M];
+    copy_sparse_to_dense(batch_systems, batch_sz, N, M, matrices);
+    copy_dense_to_dense(batch_sz, N, M, matrices, matrices_0);
     std::cout << "done" << std::endl;
     
     system_timer_event    start, end;

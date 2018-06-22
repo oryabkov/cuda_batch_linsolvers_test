@@ -1,11 +1,11 @@
-#ifndef __COPY_TO_DENSE_H__
-#define __COPY_TO_DENSE_H__
+#ifndef __COPY_DENSE_TO_DENSE_H__
+#define __COPY_DENSE_TO_DENSE_H__
 
 #include "index_matrix.h"
 #include "matrix_utils.h"
 
 template<class Real>
-int copy_to_dense(int batch_sz, int N, int M, Real *matrices_src, Real *&matrices_dst)
+int copy_dense_to_dense(int batch_sz, int N, int M, Real *matrices_src, Real *&matrices_dst)
 {
     matrices_dst = new Real[batch_sz*N*M];
 
