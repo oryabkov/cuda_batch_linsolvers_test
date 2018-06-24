@@ -82,6 +82,17 @@ int main(int argc, char **args)
         return 1;
     }
 
+    std::cout << "Initializating device number " << device_number << std::endl;
+    cudaDeviceProp deviceProp;
+    cudaGetDeviceProperties(&deviceProp, device_number);
+    std::cout << "Device compute capability: " << deviceProp.major << "." << deviceProp.minor << std::endl;
+    if (deviceProp.major*100 + deviceProp.minor < 305) {
+        std::cout << "CC less then 3.5 is not supported by this solver" << std::endl;
+        return 1;
+    }
+    CUDA_SAFE_CALL( cudaSetDevice(device_number) );
+    std::cout << "done" << std::endl;
+
     // struct for matrices
     batch_systems_data<real> batch_systems;
     int                      matrices_num_orig;
@@ -115,17 +126,6 @@ int main(int argc, char **args)
     CUDA_SAFE_CALL( cudaMallocHost((void**)&matrices_0, sizeof(real)*batch_sz*N*M) );
     copy_sparse_to_dense(batch_systems, batch_sz, N, M, matrices);
     copy_dense_to_dense(batch_sz, N, M, matrices, matrices_0);
-    std::cout << "done" << std::endl;
-
-    std::cout << "Initializating device number " << device_number << std::endl;
-    cudaDeviceProp deviceProp;
-    cudaGetDeviceProperties(&deviceProp, device_number);
-    std::cout << "Device compute capability: " << deviceProp.major << "." << deviceProp.minor << std::endl;
-    if (deviceProp.major*100 + deviceProp.minor < 305) {
-        std::cout << "CC less then 3.5 is not supported by this solver" << std::endl;
-        return 1;
-    }
-    cudaSetDevice(device_number);
     std::cout << "done" << std::endl;
 
     real    *matrices_dev, *matrices_dev_0;

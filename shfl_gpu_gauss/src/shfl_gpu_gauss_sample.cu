@@ -65,7 +65,7 @@ int main(int argc, char **args)
         std::cout << "CC less then 3.5 is not supported by this solver" << std::endl;
         return 1;
     }
-    cudaSetDevice(dev_num);
+    CUDA_SAFE_CALL( cudaSetDevice(dev_num) );
     std::cout << "done" << std::endl;
 
     real    *matrices, *matrices_0,
