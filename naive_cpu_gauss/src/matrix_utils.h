@@ -1,11 +1,14 @@
 #ifndef __MATRIX_UTILS_H__
 #define __MATRIX_UTILS_H__
 
+//TODO make functions to be methods
+//TODO why do we need these arrays of arrays?
+//TODO make it all more correct (RAII, malloc result check, ect)
+
 #include <cstdlib>
 #include <iostream>
 #include <string>
 #include <stdexcept>
-//#include <boost/program_options.hpp>
 extern "C" {
 #include "mmio.h"
 }
@@ -158,6 +161,23 @@ void read_matrices(const std::string &input_path_A, const std::string &input_pat
     if (f_b !=stdin) fclose(f_b);
 
     std::cout << "Matrix read done" << std::endl;
+}
+
+template<class T>
+void free_array(int matrices_num, T **arr)
+{
+    for (int i = 0;i < matrices_num;++i)
+        free(arr[i]);
+    free(arr);
+}
+
+template<class Real>
+void free_matrices(batch_systems_data<Real> &batch_systems)
+{
+    free_array(batch_systems.matrices_num, batch_systems.I);
+    free_array(batch_systems.matrices_num, batch_systems.J);
+    free_array(batch_systems.matrices_num, batch_systems.A_vals);
+    free_array(batch_systems.matrices_num, batch_systems.b_vals);
 }
 
 template<class Real>

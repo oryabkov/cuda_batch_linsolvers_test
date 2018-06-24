@@ -142,8 +142,11 @@ int main(int argc, char **args)
         return 1;
     }
 
+    std::cout << "Free memory..." << std::endl;
+    free_matrices(batch_systems);
     delete []matrices;
     delete []matrices_0;
+    std::cout << "done" << std::endl;
 
     return 0;
 }

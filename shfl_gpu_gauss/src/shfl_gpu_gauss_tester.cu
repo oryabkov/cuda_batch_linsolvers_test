@@ -175,6 +175,7 @@ int main(int argc, char **args)
     }
 
     std::cout << "Free memory..." << std::endl;
+    free_matrices(batch_systems);
     CUDA_SAFE_CALL( cudaFreeHost(matrices) );
     CUDA_SAFE_CALL( cudaFreeHost(matrices_0) );
     CUDA_SAFE_CALL( cudaFree(matrices_dev) );
