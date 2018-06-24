@@ -138,7 +138,7 @@ int main(int argc, char **args)
     std::cout << "Residual norm_C:        " << norm_C << std::endl;
 
     try {
-        write_vector(batch_sz, N, M, matrices, output_path_x);
+        write_vector(batch_sz, batch_sz, N, M, matrices, output_path_x);
     } catch(std::exception& ex) {
         std::cerr << "Error while writing result: " << ex.what() << std::endl;
         return 1;

@@ -181,7 +181,7 @@ int main(int argc, char **args)
     try {
         //write_vector(batch_sz, N, M, matrices, output_path_x);
         // NOTE use matrices_num_orig here instead of batch_sz to match input files shape
-        write_vector(matrices_num_orig, N, M, matrices, output_path_x);
+        write_vector(matrices_num_orig, batch_sz, N, M, matrices, output_path_x);
     } catch(std::exception& ex) {
         std::cerr << "Error while writing result: " << ex.what() << std::endl;
         return 1;

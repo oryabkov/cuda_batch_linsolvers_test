@@ -7,7 +7,7 @@
 #include "index_matrix.h"
 
 template<class Real>
-void write_vector(int batch_sz, int N, int M, Real *matrices, const std::string &output_fn)
+void write_vector(int out_sz, int batch_sz, int N, int M, Real *matrices, const std::string &output_fn)
 {
     std::cout << "Writing output solution file: " << output_fn << std::endl;
 
@@ -15,7 +15,7 @@ void write_vector(int batch_sz, int N, int M, Real *matrices, const std::string 
     if (f == NULL)
         throw std::runtime_error("Error opening output file " + output_fn);
 
-    for (int batch = 0;batch < batch_sz;batch++)
+    for (int batch = 0;batch < out_sz;batch++)
     for (int row = 0;row < N;row++)
         fprintf(f,"%le\n", (double)matrices[IM(batch,row,N)]);
 
