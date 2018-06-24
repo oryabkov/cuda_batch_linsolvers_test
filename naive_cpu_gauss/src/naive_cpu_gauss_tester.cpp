@@ -72,9 +72,11 @@ int main(int argc, char **args)
 
     // struct for matrices
     batch_systems_data<real> batch_systems;
+    int                      matrices_num_orig;
 
     try {
-        read_matrices(input_path_A, input_path_b, batch_systems);
+        read_matrices(input_path_A, input_path_b, batch_systems, matrices_num_orig, 1);
+        assert(matrices_num_orig == batch_systems.matrices_num);
         std::cout << "done" << std::endl;
     } catch(std::exception& ex) {
         std::cerr << "Error while reading matrices and rhs: " << ex.what() << std::endl;

@@ -75,10 +75,11 @@ int main(int argc, char **args)
 
     // struct for matrices
     batch_systems_data<real> batch_systems;
+    int                      matrices_num_orig;
 
     try {
-        //add here: batch_sz = ((batch_sz/256)+1)*256;
-        read_matrices(input_path_A, input_path_b, batch_systems);
+        // round up matrices num to block size
+        read_matrices(input_path_A, input_path_b, batch_systems, matrices_num_orig, 256);
         std::cout << "Using rounded batch_size: " << batch_systems.matrices_num << std::endl;
         std::cout << "done" << std::endl;
     } catch(std::exception& ex) {
@@ -86,9 +87,8 @@ int main(int argc, char **args)
         return 1;
     }
 
-    /* if all ok - we have our matrices in structure MatricesAb
+    /* if all ok - we have our matrices in structure batch_systems
      * let's print number of matrices, number of nnz elems and stats*/
-
     print_matrices_stats(batch_systems);
 
     std::cout << "Converting matrices to dense format..." << std::endl;
@@ -168,7 +168,9 @@ int main(int argc, char **args)
     std::cout << "Residual norm_C:        " << norm_C << std::endl;
 
     try {
-        write_vector(batch_sz, N, M, matrices, output_path_x);
+        //write_vector(batch_sz, N, M, matrices, output_path_x);
+        // NOTE use matrices_num_orig here instead of batch_sz to match input files shape
+        write_vector(matrices_num_orig, N, M, matrices, output_path_x);
     } catch(std::exception& ex) {
         std::cerr << "Error while writing result: " << ex.what() << std::endl;
         return 1;

@@ -16,6 +16,7 @@ extern "C" {
 template<class Real>
 struct batch_systems_data 
 {
+    // TODO rename all this (fex, why matrices_num and not batch_sz, matrices_shape and not N)
     int matrices_num;
     int nz_num;
     int matrices_shape;
@@ -64,7 +65,7 @@ bool read_vector_vals_line<double>(FILE *f_b, double &val)
 
 template<class Real>
 void read_matrices(const std::string &input_path_A, const std::string &input_path_b,
-                   batch_systems_data<Real> &batch_systems)
+                   batch_systems_data<Real> &batch_systems, int &matrices_num_orig, int matrices_num_div = 1)
 {
     FILE *f_A,*f_b;
     MM_typecode matcode;
@@ -84,6 +85,11 @@ void read_matrices(const std::string &input_path_A, const std::string &input_pat
         throw std::runtime_error("Error while reading matrices number from file " + input_path_A);
 
     std::cout << "Matrices num:" << batch_systems.matrices_num << std::endl;
+    matrices_num_orig = batch_systems.matrices_num;
+    if (batch_systems.matrices_num%matrices_num_div != 0) {
+        batch_systems.matrices_num = (batch_systems.matrices_num/matrices_num_div + 1) * matrices_num_div;
+        std::cout << "Rounded up matrices num: " << batch_systems.matrices_num << std::endl;
+    }
 
     // Allocating memory for matrices data structure 
     batch_systems.I = (int **) malloc(batch_systems.matrices_num * sizeof(int **));
@@ -94,7 +100,7 @@ void read_matrices(const std::string &input_path_A, const std::string &input_pat
     // Allocating memory for rhs data structure 
     batch_systems.b_vals = (Real **) malloc(batch_systems.matrices_num * sizeof(Real **));
 
-    for (ii = 0;ii < batch_systems.matrices_num;++ii) {
+    for (ii = 0;ii < matrices_num_orig;++ii) {
 
         if (mm_read_banner(f_A, &matcode) != 0)
             throw std::runtime_error("Could not process Matrix Market banner");
@@ -137,7 +143,7 @@ void read_matrices(const std::string &input_path_A, const std::string &input_pat
                 throw std::runtime_error("Error while reading values from vector b file " + input_path_b);
         }
 
-        // remove many I,J matrices, leave only one
+        // TODO remove many I,J matrices, leave only one
         batch_systems.I[ii] = (int*) malloc(sizeof(int*)*batch_systems.nz_num);
         batch_systems.J[ii] = (int*) malloc(sizeof(int*)*batch_systems.nz_num);
         batch_systems.A_vals[ii] = (Real *) malloc(sizeof(Real *)*batch_systems.nz_num);
@@ -161,6 +167,29 @@ void read_matrices(const std::string &input_path_A, const std::string &input_pat
     if (f_b !=stdin) fclose(f_b);
 
     std::cout << "Matrix read done" << std::endl;
+
+    if (matrices_num_orig != batch_systems.matrices_num) {
+        assert(matrices_num_orig > 0);
+        std::cout << "Copy last matrix to get rounded up matrices num" << std::endl;
+    }
+    for (ii = matrices_num_orig;ii < batch_systems.matrices_num;++ii) {        
+        // TODO remove many I,J matrices, leave only one
+        batch_systems.I[ii] = (int*) malloc(sizeof(int*)*batch_systems.nz_num);
+        batch_systems.J[ii] = (int*) malloc(sizeof(int*)*batch_systems.nz_num);
+        batch_systems.A_vals[ii] = (Real *) malloc(sizeof(Real *)*batch_systems.nz_num);
+
+        for(iii=0;iii<batch_systems.nz_num;iii++) {
+            batch_systems.I[ii][iii] = batch_systems.I[matrices_num_orig-1][iii];
+            batch_systems.J[ii][iii] = batch_systems.J[matrices_num_orig-1][iii];
+            batch_systems.A_vals[ii][iii] = batch_systems.A_vals[matrices_num_orig-1][iii];
+        }
+
+        batch_systems.b_vals[ii] = (Real *) malloc(sizeof(Real *)*batch_systems.matrices_shape);
+
+        for(iii=0;iii<batch_systems.matrices_shape;iii++) {
+            batch_systems.b_vals[ii][iii] = batch_systems.b_vals[matrices_num_orig-1][iii];
+        }
+    }
 }
 
 template<class T>
