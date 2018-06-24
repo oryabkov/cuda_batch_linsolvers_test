@@ -24,6 +24,15 @@ namespace po = boost::program_options;
 
 typedef SCALAR_TYPE     real;
 
+int power2_round_up(int x)
+{
+    assert(x > 0);
+    int res = 1;
+    while (res < x)
+        res *= 2;
+    return res;
+}
+
 int main(int argc, char **args)
 {
     std::string         input_path_A, input_path_b, output_path_x;
@@ -96,6 +105,8 @@ int main(int argc, char **args)
     int     batch_sz, N, M;
     real    *matrices, *matrices_0;
     init_dense_sz(batch_systems, batch_sz, N, M);
+    // TODO may be move this round up into init_dense_sz?
+    M = power2_round_up(M);
     if (M > 32) {
         std::cout << "Number of columns (M) more than 32 is not supported by this solver" << std::endl;
         return 1;
