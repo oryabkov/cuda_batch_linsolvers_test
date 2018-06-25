@@ -107,5 +107,6 @@ oleg.contacts@yandex.ru
 [1] Nikolay M. Evstigneev, Oleg I. Ryabkov, Eugene A. Tsatsorin 
 On the Inversion of Multiple Matrices on GPU in Batched Mode //
 Parallel computational technologies (PCT’2018) agora.guru.ru/pavt
-[2] https://docs.nvidia.com/cuda/cublas/index.html
-[3] http://icl.cs.utk.edu/magma/
+<br/>
+[2] https://docs.nvidia.com/cuda/cublas/index.html <br/>
+[3] http://icl.cs.utk.edu/magma/ <br/>
