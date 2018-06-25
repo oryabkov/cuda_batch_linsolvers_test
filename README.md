@@ -11,12 +11,12 @@ generally contains two programs. First one is called \*_sample which is
 sample that generates random linear systems given sizes of problem
 (generally they are matrix size, number of right hand sides and batch
 size, which is the number of systems to solve). Second one is called
-*_tester and performes solution of systems from given files. In some
+*_tester and performs solution of systems from given files. In some
 cases first variant is less versatile (for example, in handwritten GPU
 solvers system size is fixed at compile time). But at the same time they
-are more convinient and readable to get idea of the approach. Also there
+are more convenient and readable to get idea of the approach. Also there
 are different targets for float and double variants. Each directory 
-has its own Makefile and could be built separatly. Dependencies (if
+has its own Makefile and could be built separately. Dependencies (if
 any) specified directly through make variables. Also see README.md in
 directories to know more about presented approaches and how to build
 samples.
@@ -26,16 +26,16 @@ presented in conference paper [1].
 
 ## Current solutions
 
-* naive_cpu_gauss - handwritten gauss-jordan elimination without any 
+* naive_cpu_gauss - handwritten Gauss-Jordan elimination without any 
 complex optimizations (sort of baseline)
-* shfl_gpu_gauss - handwritten gauss-jordan elimination for CUDA that
+* shfl_gpu_gauss - handwritten Gauss-Jordan elimination for CUDA that
 makes use of CUDA register shuffle technique
 
 ## Requirements
 
-* Tests were build and tested under GNU Linux enviroment. So you'll 
+* Tests were build and tested under GNU Linux environment. So you'll 
   need at least ``make`` utility, ``gcc`` (we tested with version 4.8.5 
-  and later, but you also have to consider CUDA toolkit/gcc compability
+  and later, but you also have to consider CUDA toolkit/gcc compatibility
   issues). We hope that tests will work on any POSIX system but we
   never really tested them. Windows OS is out of our scope, so you'll 
   have to build them manually under this OS, if you want.
@@ -51,21 +51,21 @@ makes use of CUDA register shuffle technique
   implicit CUDA solver for gas dynamics. In this problem one usually
   have to solve many similarly structured small or medium size linear
   systems. For more information, see [1].
-* There are sutuations where you need, for example, to solve system 
+* There are situations where you need, for example, to solve system 
   with multiply different right hand sides (RHS). Moreover these RHSs
   may not be known in advance and may emerge one by one. In other
   situations one may need to explicitly invert matrix. This creates 
   many different use cases for batch solver, which were not our primary
   goal because in chem kinetics (out motivation problem) there is often
   no need to solve systems with the same matrix for different right hand
-  sides (RHS) many times. That is why our tests are maily aimed for the
+  sides (RHS) many times. That is why our tests are mainly aimed for the
   following situation: you solve one set (batch) of linear systems with
   one set of RHSs, one RHS per one matrix. 
 * Because of the previous note we don't restrict methods under
   consideration just to LU decomposition with following solution 
   of triangular systems. Although, this method seems to be preferable
   from the algorithm complexity point of view (especially for multiply 
-  sequentally appearing RHSs situation), in CUDA there exist different
+  sequentially appearing RHSs situation), in CUDA there exist different
   realization aspects which sometimes make more complex algorithm
   work faster (because of lower number of memory accesses, for example).
   That's why we also consider solutions based on Gauss elimination of
@@ -80,19 +80,19 @@ makes use of CUDA register shuffle technique
   to be not as efficient as LU decomposition itself. So we consider
   here whole problem of linear systems solution, not just its parts.
 * In chem kinetics linear systems with sparse matrices may emerge and
-  because some librarires provide special treatment for sparse case,
-  we also investigated dependency on matrix sparcity (i.e. fraction
-  of nonzero elements). Of course, sparcity does not effect dense 
+  because some libraries provide special treatment for sparse case,
+  we also investigated dependency on matrix sparsity (i.e. fraction
+  of nonzero elements). Of course, sparsity does not effect dense 
   solvers.
 * Separate issue is pivoting. Look at REAMDE.md file in solution's
   subdirectory to know whether this solution have support for 
   pivoting.
 
 ## Contacts
-Sorry, we are currently preparing other benchmark utils for public
+Sorry, we are currently preparing other benchmark utilities for public
 placement. Also pivoting support is not ready for handwritten solutions
 yet. If you are interested in benchmark results from paper [1] 
-or have some problems building tests or have better soltion for the
+or have some problems building tests or have better solution for the
 problem, you may contact me at oleg.contacts@yandex.ru
 
 ## Связаться с нами
